@@ -70,6 +70,16 @@ These datatypes are parsed but not supported:
 | ether         | 6 octets of hh:hh:hh:hh:hh:hh                |
 |               | where 'h' is hex digits, upper or lowercase. |
 +---------------+----------------------------------------------+
+| vsa           | Vendor specific attribute                    |
++---------------+----------------------------------------------+
+| ipv4prefix    | IPv4 subnet mask                             |
++---------------+----------------------------------------------+
+| extended      | RFC 6929 Placeholder                         |
++---------------+----------------------------------------------+
+| long-extended | RFC 6929 Placeholder                         |
++---------------+----------------------------------------------+
+| evs           | Extended vendor specific (RFC Placeholder)   |
++---------------+----------------------------------------------+
 """
 from pyrad import bidict
 from pyrad import tools
@@ -82,7 +92,8 @@ __docformat__ = 'epytext en'
 
 DATATYPES = frozenset(['string', 'ipaddr', 'integer', 'date', 'octets',
                        'abinary', 'ipv6addr', 'ipv6prefix', 'short', 'byte',
-                       'signed', 'ifid', 'ether', 'tlv', 'integer64'])
+                       'signed', 'ifid', 'ether', 'tlv', 'integer64', 'vsa',
+                       'ipv4prefix', 'extended', 'long-extended', 'evs'])
 
 
 class ParseError(Exception):
@@ -261,7 +272,7 @@ class Dictionary(object):
 
         self.attrindex.Add(attribute, key)
         self.attributes[attribute] = Attribute(attribute, code, datatype, is_sub_attribute, vendor, encrypt=encrypt, has_tag=has_tag)
-        if datatype == 'tlv':
+        if datatype in ['tlv', 'extended', 'long-extended']:
             # save attribute in tlvs
             state['tlvs'][code] = self.attributes[attribute]
         if is_sub_attribute:
