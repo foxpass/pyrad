@@ -158,7 +158,7 @@ class Dictionary(object):
     :type attributes: bidict
     """
 
-    def __init__(self, dict=None, *dicts):
+    def __init__(self, dict=None, *dicts, exclude=[]):
         """
         :param dict:  path of dictionary file or file-like object to read
         :type dict:   string or file
@@ -172,10 +172,10 @@ class Dictionary(object):
         self.defer_parse = []
 
         if dict:
-            self.ReadDictionary(dict)
+            self.ReadDictionary(dict, exclude)
 
         for i in dicts:
-            self.ReadDictionary(i)
+            self.ReadDictionary(i, exclude)
 
     def __len__(self):
         return len(self.attributes)
@@ -368,7 +368,7 @@ class Dictionary(object):
                     line=state['line'])
         state['vendor'] = ''
 
-    def ReadDictionary(self, file):
+    def ReadDictionary(self, file, exclude=[]):
         """Parse a dictionary file.
         Reads a RADIUS dictionary file and merges its contents into the
         class instance.
@@ -377,7 +377,7 @@ class Dictionary(object):
         :type file:  string or file-like object
         """
 
-        fil = dictfile.DictFile(file)
+        fil = dictfile.DictFile(file, exclude)
 
         state = {}
         state['vendor'] = ''

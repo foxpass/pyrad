@@ -42,13 +42,14 @@ class DictFile(object):
     An iterable file type that handles $INCLUDE
     directives internally.
     """
-    __slots__ = ('stack')
+    __slots__ = ('stack', 'exclude')
 
-    def __init__(self, fil):
+    def __init__(self, fil, exclude=[]):
         """
         @param fil: a dictionary file to parse
         @type fil: string or file
         """
+        self.exclude = exclude
         self.stack = []
         self.__ReadNode(fil)
 
@@ -107,7 +108,14 @@ class DictFile(object):
             else:
                 inc = self.__GetInclude(line)
                 if inc:
-                    self.__ReadNode(inc)
+                    found_exclude = False
+                    for ex in self.exclude:
+                        star_index = ex.find("*")
+                        if (star_index == -1 and inc == ex) or (star_index != -1 and inc[:star_index] == ex[:star_index]):
+                            found_exclude = True
+                            break
+                    if not found_exclude:
+                        self.__ReadNode(inc)
                 else:
                     return line
         raise StopIteration
