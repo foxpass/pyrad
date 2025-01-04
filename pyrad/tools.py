@@ -159,6 +159,15 @@ def EncodeDate(num):
     return struct.pack('!I', num)
 
 
+def EncodeComboIP(addr):
+    if not isinstance(addr, str):
+        raise TypeError('IP Address has to be a string')
+    if addr.count('.') == 4:
+        return IPv4Address(addr).packed
+    else:
+        return IPv6Address(addr).packed
+
+
 def DecodeString(orig_str):
     return orig_str.decode('utf-8')
 
@@ -196,13 +205,19 @@ def DecodeInteger64(num, format='!Q'):
 def DecodeDate(num):
     return (struct.unpack('!I', num))[0]
 
+def DecodeComboIP(addr):
+    if len(addr) == 4:
+        return DecodeAddress(addr)
+    else:
+        return DecodeIPv6Address(addr)
+
 
 def EncodeAttr(datatype, value):
     if datatype == 'string':
         return EncodeString(value)
     elif datatype == 'octets':
         return EncodeOctets(value)
-    elif datatype == 'integer':
+    elif datatype == 'integer' or datatype == 'uint32':
         return EncodeInteger(value)
     elif datatype == 'ipaddr':
         return EncodeAddress(value)
@@ -214,7 +229,7 @@ def EncodeAttr(datatype, value):
         return EncodeAscendBinary(value)
     elif datatype == 'signed':
         return EncodeInteger(value, '!i')
-    elif datatype == 'short':
+    elif datatype == 'short' or datatype == 'uint16':
         return EncodeInteger(value, '!H')
     elif datatype == 'byte':
         return EncodeInteger(value, '!B')
@@ -222,6 +237,8 @@ def EncodeAttr(datatype, value):
         return EncodeDate(value)
     elif datatype == 'integer64':
         return EncodeInteger64(value)
+    elif datatype == 'combo-ip':
+        return EncodeComboIP(value)
     else:
         raise ValueError('Unknown attribute type %s' % datatype)
 
@@ -231,7 +248,7 @@ def DecodeAttr(datatype, value):
         return DecodeString(value)
     elif datatype == 'octets':
         return DecodeOctets(value)
-    elif datatype == 'integer':
+    elif datatype == 'integer' or datatype == 'uint32':
         return DecodeInteger(value)
     elif datatype == 'ipaddr':
         return DecodeAddress(value)
@@ -243,7 +260,7 @@ def DecodeAttr(datatype, value):
         return DecodeAscendBinary(value)
     elif datatype == 'signed':
         return DecodeInteger(value, '!i')
-    elif datatype == 'short':
+    elif datatype == 'short' or datatype == 'uint16':
         return DecodeInteger(value, '!H')
     elif datatype == 'byte':
         return DecodeInteger(value, '!B')
@@ -251,5 +268,7 @@ def DecodeAttr(datatype, value):
         return DecodeDate(value)
     elif datatype == 'integer64':
         return DecodeInteger64(value)
+    elif datatype == 'combo-ip':
+        return DecodeComboIP(value)
     else:
         raise ValueError('Unknown attribute type %s' % datatype)
